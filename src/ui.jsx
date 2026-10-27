@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext.jsx';
+<<<<<<< HEAD
 import logo from './assets/msu-logo.png';
+=======
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
 
 export const HOME = { student: '/', admin: '/admin', organizer: '/org' };
 export const LOGIN = { student: '/login', admin: '/admin/login', organizer: '/org/login' };
@@ -35,6 +38,7 @@ export function ThemeToggle() {
   );
 }
 
+<<<<<<< HEAD
 export function AuthLayout({ children }) {
   return (
     <div className="auth">
@@ -63,6 +67,8 @@ export function AuthLayout({ children }) {
   );
 }
 
+=======
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
 // Top bar + page area shared by every role (used as a layout route)
 export function Shell({ title, links }) {
   const { user, logout } = useAuth();

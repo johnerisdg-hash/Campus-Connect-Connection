@@ -995,6 +995,7 @@ table.att td,table.att th{padding:8px 10px;font-size:12.5px}
   .admin-attendance-summary{align-items:flex-start;flex-direction:column}
   .admin-charge-button{margin:8px 0 0}
 }
+<<<<<<< HEAD
 
 /* ---- split-screen authentication ---- */
 .auth{
@@ -1185,3 +1186,5 @@ table.att td,table.att th{padding:8px 10px;font-size:12.5px}
 @media (max-width:899px){
   .auth-main{padding:12px 20px 32px}
 }
+=======
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a

@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+<<<<<<< HEAD
 import { AuthLayout, HOME } from '../ui.jsx';
+=======
+import { ThemeToggle, HOME } from '../ui.jsx';
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
 
 const TITLES = { student: 'Student Login', admin: 'Admin Login', organizer: 'Organization Manager Login' };
 
@@ -44,7 +48,12 @@ export default function Login({ role }) {
   }
 
   return (
+<<<<<<< HEAD
     <AuthLayout>
+=======
+    <div className="auth">
+      <div className="auth-top"><ThemeToggle /></div>
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
       <h1>{TITLES[role]}</h1>
 
       <div className="role-switch">
@@ -55,6 +64,7 @@ export default function Login({ role }) {
       </div>
 
       <form onSubmit={submit}>
+<<<<<<< HEAD
         <div className="auth-field">
           <label htmlFor="login-email">Email:</label>
           <input id="login-email" type="email" placeholder="name@school.edu" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -63,10 +73,20 @@ export default function Login({ role }) {
           <label htmlFor="login-password">Password:</label>
           <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </div>
+=======
+        <label>Email:</label>
+        <input type="email" placeholder="name@school.edu" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <label>Password:</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
         {error && <p className="error">{error}</p>}
         <button className="btn primary block" disabled={busy}>{busy ? 'Signing in…' : 'Login'}</button>
       </form>
       {role === 'student' && <p className="center">No account yet? <Link to="/register">Register</Link></p>}
+<<<<<<< HEAD
     </AuthLayout>
+=======
+    </div>
+>>>>>>> 23078622c8a597b7c7fc68423f55d3b6614e633a
   );
 }
