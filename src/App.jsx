@@ -1,91 +1,72 @@
-// Three ways to mount the app:
-//   StudentSite  -> what students open. Contains NO admin code at all.
-//   AdminSite    -> what admins open (a separate page: /admin/).
-//   OrgSite      -> what org managers (one per program) open (a separate page: /org/).
-//   TestSite     -> the "View as Admin / Student" switch. FOR TESTING / PREVIEW ONLY — never deploy this one.
-import { useState } from 'react';
-import AdminApp from './admin/AdminApp.jsx';
-import OrgApp from './org/OrgApp.jsx';
-import StudentApp from './student/StudentApp.jsx';
-import { DbProvider, useDb } from './lib/store.jsx';
-import logo from './assets/msu-logo.png';
-import { ThemeToggle } from './lib/theme.jsx';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from './AuthContext.jsx';
+import { Shell, HOME, LOGIN } from './ui.jsx';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import Events from './pages/student/Events.jsx';
+import EventDetail from './pages/student/EventDetail.jsx';
+import MyEvents from './pages/student/MyEvents.jsx';
+import AdminLayout from './pages/admin/AdminLayout.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard.jsx';
+import UpcomingEvents from './pages/admin/UpcomingEvents.jsx';
+import CreateEvent from './pages/admin/CreateEvent.jsx';
+import EditEvent from './pages/admin/EditEvent.jsx';
+import Attendance from './pages/admin/Attendance.jsx';
+import ScanEvent from './pages/admin/ScanEvent.jsx';
+import OrganizationLayout from './pages/organization/OrganizationLayout.jsx';
+import CreateOrganizationEvent from './pages/organization/CreateOrganizationEvent.jsx';
 
-function Brand() {
+function Protected({ roles, loginPath }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to={loginPath} replace />;
+  if (!roles.includes(user.role)) return <Navigate to={HOME[user.role]} replace />;
+  return <Outlet />;
+}
+
+const studentLinks = [
+  { to: '/', label: 'Events', end: true },
+  { to: '/my-events', label: 'My Attendance' }
+];
+
+export default function App() {
   return (
-    <div className="brand">
-      <img alt="Mindoro State University logo" src={logo} />
-      <div className="bt">
-        <h1>CampusConnect</h1>
-        <div className="cn">Mindoro State University · Calapan Campus</div>
-      </div>
-      <ThemeToggle />
-    </div>
-  );
-}
+    <Routes>
+      <Route path="/login" element={<Login role="student" />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/admin/login" element={<Login role="admin" />} />
+      <Route path="/org/login" element={<Login role="organizer" />} />
 
-function Toast() {
-  const { toastMsg } = useDb();
-  return <div id="toast" className={toastMsg ? 'show' : ''}>{toastMsg}</div>;
-}
+      <Route element={<Protected roles={['student']} loginPath={LOGIN.student} />}>
+        <Route element={<Shell links={studentLinks} />}>
+          <Route path="/" element={<Events />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/my-events" element={<MyEvents />} />
+        </Route>
+      </Route>
 
-function Frame({ id, on = true, children }) {
-  return (
-    <div className={'app' + (on ? ' on' : '')} id={id}>
-      <Brand />
-      {children}
-    </div>
-  );
-}
+      <Route element={<Protected roles={['admin']} loginPath={LOGIN.admin} />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/admin" element={<UpcomingEvents />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/upcoming" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin/create-event" element={<CreateEvent />} />
+          <Route path="/admin/events/:id/edit" element={<EditEvent />} />
+          <Route path="/admin/events/:id/attendance" element={<Attendance />} />
+          <Route path="/admin/events/:id/scan" element={<ScanEvent />} />
+        </Route>
+      </Route>
+      <Route element={<Protected roles={['organizer']} loginPath={LOGIN.organizer} />}>
+        <Route element={<OrganizationLayout />}>
+          <Route path="/org" element={<UpcomingEvents basePath="/org" />} />
+          <Route path="/org/dashboard" element={<AdminDashboard basePath="/org" />} />
+          <Route path="/org/create-event" element={<CreateOrganizationEvent />} />
+          <Route path="/org/events/:id/edit" element={<EditEvent />} />
+          <Route path="/org/events/:id/attendance" element={<Attendance />} />
+          <Route path="/org/events/:id/scan" element={<ScanEvent />} />
+        </Route>
+      </Route>
 
-// the student site has its own layout (sidebar + content), so it doesn't use the centered Frame
-function StudentFrame({ on = true }) {
-  return <div className={'app sapp' + (on ? ' on' : '')} id="studentApp"><StudentApp /></div>;
-}
-
-export function StudentSite() {
-  return (
-    <DbProvider>
-      <StudentFrame />
-      <Toast />
-    </DbProvider>
-  );
-}
-
-export function AdminSite() {
-  return (
-    <DbProvider>
-      <Frame id="adminApp"><AdminApp active /></Frame>
-      <Toast />
-    </DbProvider>
-  );
-}
-
-export function OrgSite() {
-  return (
-    <DbProvider>
-      <Frame id="orgApp"><OrgApp active /></Frame>
-      <Toast />
-    </DbProvider>
-  );
-}
-
-export function TestSite() {
-  const [role, setRole] = useState('admin');
-  return (
-    <DbProvider>
-      <div className="switch">
-        View as:
-        <button className={role === 'admin' ? 'on' : ''} onClick={() => setRole('admin')}>Admin</button>
-        <button className={role === 'org' ? 'on' : ''} onClick={() => setRole('org')}>Org Manager</button>
-        <button className={role === 'student' ? 'on' : ''} onClick={() => setRole('student')}>Student</button>
-        <span style={{ opacity: 0.8 }}>· testing only</span>
-      </div>
-      {/* both stay mounted so switching keeps your place; the hidden one is display:none */}
-      <Frame id="adminApp" on={role === 'admin'}><AdminApp active={role === 'admin'} /></Frame>
-      <Frame id="orgApp" on={role === 'org'}><OrgApp active={role === 'org'} /></Frame>
-      <StudentFrame on={role === 'student'} />
-      <Toast />
-    </DbProvider>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
